@@ -23,7 +23,20 @@ class Teacher(models.Model):
         return f"{self.last_name} {self.first_name}"
 
 class Contribution(models.Model):
-    MONTH_CHOICES = [(i, f"{i:02d}") for i in range(1, 13)]
+    MONTH_CHOICES = [
+        (1, 'Enero'),
+        (2, 'Febrero'),
+        (3, 'Marzo'),
+        (4, 'Abril'),
+        (5, 'Mayo'),
+        (6, 'Junio'),
+        (7, 'Julio'),
+        (8, 'Agosto'),
+        (9, 'Septiembre'),
+        (10, 'Octubre'),
+        (11, 'Noviembre'),
+        (12, 'Diciembre'),
+    ]
 
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, related_name='contributions')
     month = models.IntegerField(choices=MONTH_CHOICES, verbose_name="Mes")
