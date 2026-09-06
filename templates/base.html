@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,44 +7,17 @@
     <title>{% block title %}CPPE Puno{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
-    <style>
-        .bg-primary { background-color: #00254a; }
-        .text-primary { color: #00254a; }
-        .border-primary { border-color: #00254a; }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            font-size: 22px;
-            vertical-align: middle;
-        }
-        .icon-link {
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 4px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-        .icon-link:hover {
-            background-color: #e5e7eb;
-        }
-        .icon-link .material-symbols-outlined {
-            font-size: 24px;
-        }
-        .btn-icon {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-icon .material-symbols-outlined {
-            font-size: 20px;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
     <nav class="bg-primary text-white p-4 shadow-lg">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="{% url 'landing' %}" class="text-xl font-bold">CPPE Región Puno</a>
+            <a href="{% url 'landing' %}" class="text-xl font-bold">
+                <img src="{% static 'images/cppe.svg' %}" alt="CPPE Región Puno" class="h-10 inline-block mr-2">
+                CPPE Región Puno
+            </a>
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
                     <span class="text-sm text-yellow-300"><span class="material-symbols-outlined">boy</span> {{ user.username }}</span>

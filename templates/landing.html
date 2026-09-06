@@ -1,43 +1,102 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}Consulta de Colegiados{% endblock %}
+
+{% block title %}Consulta de Colegiados - CPPE Puno{% endblock %}
+
 {% block content %}
-<div class="max-w-lg mx-auto bg-white p-8 rounded shadow">
-    <div class="text-center mb-6">
-        <img src="{% static 'images/logo.png' %}" alt="Logo CPPE" class="mx-auto h-20 w-auto" onerror="this.style.display='none'">
-        <h2 class="text-xl font-bold text-primary mt-2">Colegio de Profesores del Perú - Región Puno</h2>
-    </div>
-    
-    <h3 class="text-lg font-semibold text-primary mt-2 mb-4">Buscar Profesor</h3>
-    <form method="POST">
-        {% csrf_token %}
-        <div class="flex">
-            <input type="text" name="dni" placeholder="Ingrese DNI (8 dígitos)" maxlength="8" class="w-full p-2 border rounded-l">
-            <button type="submit" class="bg-primary text-white px-4 py-2 rounded-r hover:bg-blue-900 btn-icon">
-                <span class="material-symbols-outlined text-white text-base">search</span>
-            </button>
+<div class="max-w-6xl mx-auto">
+    <!-- Presentación -->
+    <div class="bg-white p-8 rounded-xl shadow-lg mb-8 text-center">
+        <div class="flex justify-center mb-4">
+            <img src="{% static 'img/logo.png' %}" alt="Logo CPPE" class="h-24 w-auto" onerror="this.style.display='none'">
         </div>
+        <h1 class="text-3xl font-bold text-primary mb-4">Colegio de Profesores del Perú - Región Puno</h1>
+        <p class="text-gray-700 text-lg max-w-3xl mx-auto leading-relaxed">
+            Ponemos a disposición de la ciudadanía un servicio en línea que permite verificar los datos de los 
+            <strong>profesionales de la educación</strong>, a fin de garantizar transparencia y confianza en la enseñanza. 
+            A través de este enlace, cualquier persona puede corroborar si un docente está registrado oficialmente 
+            como profesor(a) y confirmar si se encuentra habilitado para el ejercicio profesional, brindando seguridad 
+            tanto a padres de familia como a instituciones educativas.
+        </p>
+    </div>
 
-        
-    </form>
+    <!-- Buscador -->
+    <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+        <h2 class="text-2xl font-bold text-primary flex items-center mb-4">
+            <span class="material-symbols-outlined text-primary text-3xl mr-2">search</span>
+            Consultar por DNI
+        </h2>
+        <form method="POST" class="flex flex-col sm:flex-row gap-2">
+            {% csrf_token %}
+            <input type="text" name="dni" placeholder="Ingrese DNI (8 dígitos)" maxlength="8" 
+                   class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            <button type="submit" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-blue-900 transition flex items-center justify-center gap-2">
+                <span class="material-symbols-outlined text-white">search</span>
+                Consultar
+            </button>
+        </form>
 
-    {% if teacher %}
-        <div class="mt-6 p-4 border rounded bg-gray-50">
-            <div class="flex items-center mb-4">
-                {% if teacher.photo %}
-                    <img src="{{ teacher.photo.url }}" alt="Foto" class="w-20 h-20 object-cover rounded-full mr-4">
-                {% else %}
-                    <div class="w-20 h-20 bg-gray-300 rounded-full mr-4 flex items-center justify-center text-gray-600">Sin foto</div>
-                {% endif %}
-                <div>
-                    <p><strong>Nombres:</strong> {{ teacher.first_name }}</p>
-                    <p><strong>Apellidos:</strong> {{ teacher.last_name }}</p>
-                    <p><strong>DNI:</strong> {{ teacher.dni }}</p>
-                    <p><strong>Código de Colegiatura:</strong> {{ teacher.registration_code }}</p>
-                    <p><strong>Estado:</strong> <span class="font-bold {% if teacher.is_enabled %}text-green-600{% else %}text-red-600{% endif %}">{% if teacher.is_enabled %}Habilitado{% else %}No habilitado{% endif %}</span></p>
+        {% if teacher %}
+            <div class="mt-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                <div class="flex items-center gap-4">
+                    {% if teacher.photo %}
+                        <img src="{{ teacher.photo.url }}" alt="Foto" class="w-20 h-20 object-cover rounded-full border-2 border-gray-300">
+                    {% else %}
+                        <div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-gray-600">
+                            <span class="material-symbols-outlined text-4xl">person</span>
+                        </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold">{{ teacher.full_name }}</h3>
+                        <p><span class="font-medium">DNI:</span> {{ teacher.dni }}</p>
+                        <p><span class="font-medium">Código de Colegiatura:</span> {{ teacher.registration_code }}</p>
+                        <p class="mt-2">
+                            {% if teacher.is_enabled %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-white text-sm font-bold bg-green-600">
+                                    <span class="material-symbols-outlined text-base">check_circle</span>
+                                    Habilitado
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-white text-sm font-bold bg-red-600">
+                                    <span class="material-symbols-outlined text-base">cancel</span>
+                                    No habilitado
+                                </span>
+                            {% endif %}
+                        </p>
+                    </div>
                 </div>
             </div>
+        {% endif %}
+    </div>
+
+    <!-- Últimos profesores adheridos -->
+    <div class="bg-white p-6 rounded-xl shadow-lg">
+        <h2 class="text-2xl font-bold text-primary flex items-center mb-4">
+            <span class="material-symbols-outlined text-primary text-3xl mr-2">groups</span>
+            Últimos profesores adheridos
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {% for t in last_teachers %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition flex flex-col items-center text-center">
+                    {% if t.photo %}
+                        <img src="{{ t.photo.url }}" class="w-24 h-24 object-cover rounded-full border-2 border-gray-300 mb-3">
+                    {% else %}
+                        <div class="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center text-gray-500 mb-3">
+                            <span class="material-symbols-outlined text-5xl">person</span>
+                        </div>
+                    {% endif %}
+                    <h3 class="font-semibold text-lg">{{ t.first_name }}</h3>
+                    <p class="text-sm text-gray-600">DNI: {{ t.dni }}</p>
+                    <p class="text-sm">
+                        <span class="inline-block w-2 h-2 rounded-full {% if t.is_enabled %}bg-green-500{% else %}bg-red-500{% endif %} mr-1"></span>
+                        {% if t.is_enabled %}Habilitado{% else %}No habilitado{% endif %}
+                    </p>
+                    <p class="text-xs text-gray-400 mt-1">Adherido: {{ t.created_at|date:"d/m/Y" }}</p>
+                </div>
+            {% empty %}
+                <p class="col-span-full text-center text-gray-500">Aún no hay profesores registrados.</p>
+            {% endfor %}
         </div>
-    {% endif %}
+    </div>
 </div>
 {% endblock %}

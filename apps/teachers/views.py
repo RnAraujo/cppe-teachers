@@ -11,6 +11,9 @@ from datetime import date
 
 def landing(request):
     teacher = None
+    # Obtener los 6 últimos profesores registrados (por fecha de creación)
+    last_teachers = Teacher.objects.all().order_by('-created_at')[:6]
+
     if request.method == 'POST':
         dni = request.POST.get('dni', '').strip()
         found = False
@@ -33,13 +36,15 @@ def landing(request):
         else:
             messages.error(request, "DNI inválido (debe tener 8 dígitos).")
 
-        # Guardar log siempre (incluso si DNI inválido, se registra igual)
         PublicQueryLog.objects.create(
             dni=dni,
             found=found
         )
 
-    return render(request, 'landing.html', {'teacher': teacher})
+    return render(request, 'landing.html', {
+        'teacher': teacher,
+        'last_teachers': last_teachers,
+    })
 
 @login_required
 def dashboard(request):
