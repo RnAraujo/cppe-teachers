@@ -4,11 +4,11 @@
 {% block content %}
 <div class="max-w-lg mx-auto bg-white p-8 rounded shadow">
     <div class="text-center mb-6">
-        <img src="{% static 'img/logo.png' %}" alt="Logo CPPE" class="mx-auto h-20 w-auto" onerror="this.style.display='none'">
+        <img src="{% static 'images/logo.png' %}" alt="Logo CPPE" class="mx-auto h-20 w-auto" onerror="this.style.display='none'">
         <h2 class="text-xl font-bold text-primary mt-2">Colegio de Profesores del Perú - Región Puno</h2>
     </div>
     
-    <h3 class="text-lg font-semibold text-primary mb-4">Buscar Profesor</h3>
+    <h3 class="text-lg font-semibold text-primary mt-2 mb-4">Buscar Profesor</h3>
     <form method="POST">
         {% csrf_token %}
         <div class="flex">
@@ -35,7 +35,6 @@
                     <p><strong>DNI:</strong> {{ teacher.dni }}</p>
                     <p><strong>Código de Colegiatura:</strong> {{ teacher.registration_code }}</p>
                     <p><strong>Estado:</strong> <span class="font-bold {% if teacher.is_enabled %}text-green-600{% else %}text-red-600{% endif %}">{% if teacher.is_enabled %}Habilitado{% else %}No habilitado{% endif %}</span></p>
-                    <p><strong>Aportes:</strong> <span class="font-bold">{{ teacher.status }}</span></p>
                 </div>
             </div>
         </div>

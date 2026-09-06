@@ -43,7 +43,7 @@ def dashboard(request):
             Q(first_name__icontains=query) |
             Q(registration_code__icontains=query)
         )
-    paginator = Paginator(teachers_list, 20)
+    paginator = Paginator(teachers_list, 16)
     page = request.GET.get('page')
     try:
         teachers = paginator.page(page)
@@ -53,7 +53,7 @@ def dashboard(request):
         teachers = paginator.page(paginator.num_pages)
 
     # Últimos 10 profesores actualizados (independientemente de la búsqueda)
-    recent_teachers = Teacher.objects.all().order_by('-updated_at')[:10]
+    recent_teachers = Teacher.objects.all().order_by('-updated_at')[:7]
 
     context = {
         'teachers': teachers,
@@ -141,3 +141,8 @@ def download_receipts(request):
         return response
     else:
         return redirect('dashboard')
+
+@login_required
+def teacher_detail(request, teacher_id):
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+    return render(request, 'teacher_detail.html', {'teacher': teacher})

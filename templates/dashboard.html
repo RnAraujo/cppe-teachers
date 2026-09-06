@@ -34,9 +34,8 @@
                         <th class="p-2 text-left">DNI</th>
                         <th class="p-2 text-left">Apellidos</th>
                         <th class="p-2 text-left">Nombres</th>
-                        <th class="p-2 text-left">Colegiatura</th>
                         <th class="p-2 text-left">Habilitado</th>
-                        <th class="p-2 text-left">Acciones</th>
+                        <th class="p-2 text-left">Acción</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,22 +44,15 @@
                         <td class="p-2">{{ teacher.dni }}</td>
                         <td class="p-2">{{ teacher.last_name }}</td>
                         <td class="p-2">{{ teacher.first_name }}</td>
-                        <td class="p-2">{{ teacher.registration_code }}</td>
                         <td class="p-2">{% if teacher.is_enabled %}✅{% else %}❌{% endif %}</td>
-                        <td class="p-2 flex items-center space-x-1">
-                            <a href="{% url 'teacher_contributions' teacher.id %}" class="icon-link" title="Ver aportes">
-                                <span class="material-symbols-outlined">receipt_long</span>
-                            </a>
-                            <a href="{% url 'edit_teacher' teacher.id %}" class="icon-link" title="Editar">
-                                <span class="material-symbols-outlined">edit</span>
-                            </a>
-                            <a href="{% url 'add_contribution' teacher.id %}" class="icon-link" title="Registrar aporte">
-                                <span class="material-symbols-outlined">payments</span>
+                        <td class="p-2">
+                            <a href="{% url 'teacher_detail' teacher.id %}" class="icon-link" title="Ver detalles">
+                                <span class="material-symbols-outlined">visibility</span>
                             </a>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="p-4 text-center">No hay profesores registrados.</td></tr>
+                    <tr><td colspan="5" class="p-4 text-center">No hay profesores registrados.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -71,15 +63,15 @@
         <div class="mt-4 flex justify-center">
             <nav class="flex items-center space-x-1">
                 {% if teachers.has_previous %}
-                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&laquo;</a>
+                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">Primero</a>
                 {% else %}
-                    <span class="px-3 py-1 border rounded text-gray-400">&laquo;</span>
+                    <span class="px-3 py-1 border rounded text-gray-400">Primero</span>
                 {% endif %}
 
                 {% if teachers.has_previous %}
-                    <a href="?page={{ teachers.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&lsaquo;</a>
+                    <a href="?page={{ teachers.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">Anterior</a>
                 {% else %}
-                    <span class="px-3 py-1 border rounded text-gray-400">&lsaquo;</span>
+                    <span class="px-3 py-1 border rounded text-gray-400">Anterior</span>
                 {% endif %}
 
                 {% for p in teachers.paginator.page_range %}
@@ -93,15 +85,15 @@
                 {% endfor %}
 
                 {% if teachers.has_next %}
-                    <a href="?page={{ teachers.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&rsaquo;</a>
+                    <a href="?page={{ teachers.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">Siguiente</a>
                 {% else %}
-                    <span class="px-3 py-1 border rounded text-gray-400">&rsaquo;</span>
+                    <span class="px-3 py-1 border rounded text-gray-400">Siguiente</span>
                 {% endif %}
 
                 {% if teachers.has_next %}
-                    <a href="?page={{ teachers.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&raquo;</a>
+                    <a href="?page={{ teachers.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">Último</a>
                 {% else %}
-                    <span class="px-3 py-1 border rounded text-gray-400">&raquo;</span>
+                    <span class="px-3 py-1 border rounded text-gray-400">Último</span>
                 {% endif %}
             </nav>
         </div>
@@ -146,15 +138,15 @@
                         <li class="flex items-start space-x-3 border-b border-gray-100 pb-2">
                             <div class="flex-shrink-0">
                                 {% if teacher.photo %}
-                                    <img src="{{ teacher.photo.url }}" alt="{{ teacher.full_name }}" class="h-10 w-10 object-cover rounded-full">
+                                    <img src="{{ teacher.photo.url }}" class="h-10 w-10 object-cover rounded-full">
                                 {% else %}
-                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600">
                                         <span class="material-symbols-outlined text-base">person</span>
                                     </div>
                                 {% endif %}
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-gray-800 truncate">{{ teacher.full_name }}</p>
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ teacher.first_name }}</p>
                                 <p class="text-xs text-gray-500">DNI: {{ teacher.dni }}</p>
                                 <p class="text-xs text-gray-400">
                                     <span class="inline-block w-2 h-2 rounded-full {% if teacher.is_enabled %}bg-green-500{% else %}bg-red-500{% endif %} mr-1"></span>

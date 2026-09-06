@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detalle del Profesor{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+    <div class="flex justify-between items-start border-b border-gray-200 pb-4 mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-primary flex items-center">
+                <span class="material-symbols-outlined text-primary text-3xl mr-2">person</span>
+                Detalle del Profesor
+            </h2>
+            <p class="text-gray-600 text-sm mt-1">Información completa del colegiado</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{% url 'edit_teacher' teacher.id %}" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-900 btn-icon">
+                <span class="material-symbols-outlined text-white text-base">edit</span>
+                Editar
+            </a>
+            <a href="{% url 'add_contribution' teacher.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 btn-icon">
+                <span class="material-symbols-outlined text-white text-base">payments</span>
+                Registrar Aporte
+            </a>
+        </div>
+    </div>
+
+    <div class="flex flex-col md:flex-row items-start gap-6">
+        <!-- Foto -->
+        <div class="flex-shrink-0">
+            {% if teacher.photo %}
+                <img src="{{ teacher.photo.url }}" alt="{{ teacher.full_name }}" class="h-40 w-40 object-cover rounded-full border-4 border-gray-200 shadow">
+            {% else %}
+                <div class="h-40 w-40 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 border-4 border-gray-300">
+                    <span class="material-symbols-outlined text-6xl">person</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Datos -->
+        <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-500">DNI</p>
+                <p class="font-medium">{{ teacher.dni }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Código de Colegiatura</p>
+                <p class="font-medium">{{ teacher.registration_code }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Nombres</p>
+                <p class="font-medium">{{ teacher.first_name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Apellidos</p>
+                <p class="font-medium">{{ teacher.last_name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Estado</p>
+                <p class="font-medium">
+                    {% if teacher.is_enabled %}
+                        <span class="text-green-600 flex items-center">
+                            <span class="material-symbols-outlined text-base mr-1">check_circle</span> Habilitado
+                        </span>
+                    {% else %}
+                        <span class="text-red-600 flex items-center">
+                            <span class="material-symbols-outlined text-base mr-1">cancel</span> No habilitado
+                        </span>
+                    {% endif %}
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Fecha de registro</p>
+                <p class="font-medium">{{ teacher.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Última actualización</p>
+                <p class="font-medium">{{ teacher.updated_at|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimos aportes (opcional) -->
+    <div class="mt-8 border-t border-gray-200 pt-6">
+        <h3 class="text-lg font-semibold text-primary flex items-center">
+            <span class="material-symbols-outlined text-primary text-base mr-1">receipt_long</span>
+            Últimos aportes
+        </h3>
+        {% with contributions=teacher.contributions.all|slice:":5" %}
+            {% if contributions %}
+                <ul class="mt-2 space-y-1 text-sm">
+                    {% for c in contributions %}
+                        <li class="flex justify-between border-b border-gray-100 py-1">
+                            <span>{{ c.get_month_display }} {{ c.year }}</span>
+                            <span>S/ {{ c.amount }}</span>
+                            <span class="text-gray-500">{{ c.payment_date|date:"d/m/Y" }}</span>
+                            <a href="{% url 'download_receipt' c.id %}" class="text-blue-600 hover:underline flex items-center" title="Descargar recibo">
+                                <span class="material-symbols-outlined text-base">picture_as_pdf</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <a href="{% url 'teacher_contributions' teacher.id %}" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
+                    Ver todos los aportes
+                </a>
+            {% else %}
+                <p class="text-gray-500 text-sm mt-2">No hay aportes registrados.</p>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="mt-6 flex gap-3">
+        <a href="{% url 'dashboard' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-lg transition duration-200 flex items-center">
+            <span class="material-symbols-outlined text-base mr-1">arrow_back</span>
+            Volver al listado
+        </a>
+    </div>
+</div>
+{% endblock %}

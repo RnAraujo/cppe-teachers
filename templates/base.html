@@ -46,7 +46,7 @@
             <a href="{% url 'landing' %}" class="text-xl font-bold">CPPE Región Puno</a>
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
-                    <span class="text-sm">👤 {{ user.username }}</span>
+                    <span class="text-sm text-yellow-300"><span class="material-symbols-outlined">boy</span> {{ user.username }}</span>
                     <a href="{% url 'dashboard' %}" class="hover:underline">Dashboard</a>
                     <form action="{% url 'logout' %}" method="post" class="inline">
                         {% csrf_token %}
@@ -77,8 +77,8 @@
     </main>
 
     <footer class="bg-primary text-white text-center p-4 mt-8">
-        <p>&copy; 2025 CPPE Región Puno - Todos los derechos reservados</p>
-        <p class="text-sm">Dirección: Jr. Lima 123, Puno | Teléfono: 951-123456 | Correo: cppe@puno.pe</p>
+        <p>&copy; 2026 CPPE Región Puno - Todos los derechos reservados</p>
+        <p class="text-sm">Dirección: Jr. El Puerto, Puno | Teléfono: 906678587 - 935181205</p>
     </footer>
 </body>
 </html>
