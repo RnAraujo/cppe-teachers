@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Editar Profesor{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto bg-white p-8 rounded shadow">
+    <h2 class="text-2xl font-bold text-primary mb-4">Editar Profesor: {{ teacher.full_name }}</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="bg-primary text-white px-6 py-2 rounded hover:bg-blue-900 mt-4">Actualizar</button>
+        <a href="{% url 'dashboard' %}" class="ml-4 text-gray-600 hover:underline">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

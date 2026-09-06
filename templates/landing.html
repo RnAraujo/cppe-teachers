@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Consulta de Colegiados{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-white p-8 rounded shadow">
+    <h2 class="text-2xl font-bold text-primary mb-4">Buscar Profesor</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="flex">
+            <input type="text" name="dni" placeholder="Ingrese DNI (8 dígitos)" maxlength="8" class="w-full p-2 border rounded-l">
+            <button type="submit" class="bg-primary text-white px-4 py-2 rounded-r hover:bg-blue-900">Consultar</button>
+        </div>
+    </form>
+    {% if teacher %}
+        <div class="mt-6 p-4 border rounded bg-gray-50">
+            <div class="flex items-center">
+                {% if teacher.photo %}
+                    <img src="{{ teacher.photo.url }}" alt="Foto" class="w-20 h-20 object-cover rounded-full mr-4">
+                {% else %}
+                    <div class="w-20 h-20 bg-gray-300 rounded-full mr-4 flex items-center justify-center text-gray-600">Sin foto</div>
+                {% endif %}
+                <div>
+                    <h3 class="text-xl font-semibold">{{ teacher.full_name }}</h3>
+                    <p>DNI: {{ teacher.dni }}</p>
+                    <p>Código Colegiatura: {{ teacher.registration_code }}</p>
+                    <p>Estado: <span class="font-bold {% if teacher.is_enabled %}text-green-600{% else %}text-red-600{% endif %}">{% if teacher.is_enabled %}Habilitado{% else %}No habilitado{% endif %}</span></p>
+                    <p>Aportes: <span class="font-bold">{{ teacher.status }}</span></p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Panel de Administración{% endblock %}
+{% block content %}
+<div class="bg-white p-6 rounded shadow">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-primary">Lista de Profesores</h2>
+        <a href="{% url 'add_teacher' %}" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-900">+ Nuevo Profesor</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full border-collapse">
+            <thead>
+                <tr class="bg-primary text-white">
+                    <th class="p-2 text-left">DNI</th>
+                    <th class="p-2 text-left">Apellidos y Nombres</th>
+                    <th class="p-2 text-left">Colegiatura</th>
+                    <th class="p-2 text-left">Habilitado</th>
+                    <th class="p-2 text-left">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in teachers %}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-2">{{ teacher.dni }}</td>
+                    <td class="p-2">{{ teacher.full_name }}</td>
+                    <td class="p-2">{{ teacher.registration_code }}</td>
+                    <td class="p-2">{% if teacher.is_enabled %}✅{% else %}❌{% endif %}</td>
+
+                    <!-- En la tabla, en acciones -->
+                    <td class="p-2">
+                        <a href="{% url 'teacher_contributions' teacher.id %}" class="text-blue-600 hover:underline">Ver aportes</a>
+                        <span class="mx-1">|</span>
+                        <a href="{% url 'edit_teacher' teacher.id %}" class="text-blue-600 hover:underline">Editar</a>
+                        <span class="mx-1">|</span>
+                        <a href="{% url 'add_contribution' teacher.id %}" class="text-blue-600 hover:underline">Registrar aporte</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="p-4 text-center">No hay profesores registrados.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paginación -->
+    {% if teachers.has_other_pages %}
+    <div class="flex justify-center mt-4 space-x-1">
+        {% if teachers.has_previous %}
+            <a href="?page=1" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo; Primero</a>
+            <a href="?page={{ teachers.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Anterior</a>
+        {% endif %}
+
+        <span class="px-3 py-1 bg-primary text-white rounded">
+            Página {{ teachers.number }} de {{ teachers.paginator.num_pages }}
+        </span>
+
+        {% if teachers.has_next %}
+            <a href="?page={{ teachers.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Siguiente</a>
+            <a href="?page={{ teachers.paginator.num_pages }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Último &raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
