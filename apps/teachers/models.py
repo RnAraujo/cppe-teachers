@@ -50,3 +50,17 @@ class Contribution(models.Model):
             next_id = (last.id + 1) if last else 1
             self.receipt_number = f"CPPE-{self.year}-{next_id:04d}"
         super().save(*args, **kwargs)
+
+class PublicQueryLog(models.Model):
+    dni = models.CharField(max_length=8, verbose_name="DNI consultado")
+    timestamp = models.DateTimeField(auto_now_add=True, verbose_name="Fecha y hora")
+    found = models.BooleanField(default=False, verbose_name="¿Encontrado?")
+
+    class Meta:
+        db_table = 'public_query_logs'
+        verbose_name = "Consulta pública"
+        verbose_name_plural = "Consultas públicas"
+        ordering = ['-timestamp']
+
+    def __str__(self):
+        return f"{self.dni} - {self.timestamp.strftime('%d/%m/%Y %H:%M')}"

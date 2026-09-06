@@ -1,0 +1,25 @@
+; /etc/systemd/system/uwsgi.service
+
+[Unit]
+Description=uWSGI CPPE Puno
+After=network.target
+
+[Service]
+User=rene
+Group=www-data
+
+WorkingDirectory=/home/rene/production
+
+Environment="PATH=/home/rene/entorno/bin"
+
+ExecStart=/home/rene/entorno/bin/uwsgi --ini /home/rene/production/uwsgi.ini
+
+Restart=always
+RestartSec=5
+
+KillSignal=SIGQUIT
+
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

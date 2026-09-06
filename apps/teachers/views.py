@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
-from .models import Teacher, Contribution
+from .models import Teacher, Contribution, PublicQueryLog
 from .forms import TeacherForm, ContributionForm
 from .utils import generate_receipt_pdf, generate_multiple_receipts_pdf
 from datetime import date
@@ -13,6 +13,7 @@ def landing(request):
     teacher = None
     if request.method == 'POST':
         dni = request.POST.get('dni', '').strip()
+        found = False
         if dni.isdigit() and len(dni) == 8:
             try:
                 teacher = Teacher.objects.get(dni=dni)
@@ -25,11 +26,19 @@ def landing(request):
                     teacher.status = f"Adeuda meses: {', '.join([str(m) for m in missing])}"
                 else:
                     teacher.status = "Aportes al día"
+                found = True
             except Teacher.DoesNotExist:
                 teacher = None
                 messages.error(request, "Profesor no registrado en nuestra base de datos.")
         else:
             messages.error(request, "DNI inválido (debe tener 8 dígitos).")
+
+        # Guardar log siempre (incluso si DNI inválido, se registra igual)
+        PublicQueryLog.objects.create(
+            dni=dni,
+            found=found
+        )
+
     return render(request, 'landing.html', {'teacher': teacher})
 
 @login_required
