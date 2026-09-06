@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
 {% block title %}Registrar Aporte{% endblock %}
+
 {% block content %}
 <div class="max-w-2xl mx-auto bg-white p-8 rounded shadow">
-    <h2 class="text-2xl font-bold text-primary mb-4">Registrar Aporte para {{ teacher.full_name }}</h2>
+    <h2 class="text-2xl font-bold text-primary mb-4 flex items-center">
+        <span class="material-symbols-outlined text-primary text-3xl mr-2">payments</span>
+        Registrar Aporte para {{ teacher.full_name }}
+    </h2>
     <form method="POST">
         {% csrf_token %}
         <div class="mb-4">
@@ -21,8 +25,14 @@
             <label class="block text-sm font-medium">Observaciones</label>
             {{ form.observations }}
         </div>
-        <button type="submit" class="bg-primary text-white px-6 py-2 rounded hover:bg-blue-900">Registrar Pago</button>
-        <a href="{% url 'dashboard' %}" class="ml-4 text-gray-600 hover:underline">Cancelar</a>
+        <button type="submit" class="bg-primary text-white px-6 py-2 rounded hover:bg-blue-900 btn-icon">
+            <span class="material-symbols-outlined text-white text-base">save</span>
+            Registrar Pago
+        </button>
+        <a href="{% url 'teacher_contributions' teacher.id %}" class="ml-4 text-gray-600 hover:underline flex items-center">
+            <span class="material-symbols-outlined text-base">cancel</span>
+            Cancelar
+        </a>
     </form>
 </div>
 {% endblock %}

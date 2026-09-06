@@ -1,63 +1,177 @@
 {% extends 'base.html' %}
 {% block title %}Panel de Administración{% endblock %}
+
 {% block content %}
-<div class="bg-white p-6 rounded shadow">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold text-primary">Lista de Profesores</h2>
-        <a href="{% url 'add_teacher' %}" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-900">+ Nuevo Profesor</a>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
-            <thead>
-                <tr class="bg-primary text-white">
-                    <th class="p-2 text-left">DNI</th>
-                    <th class="p-2 text-left">Apellidos y Nombres</th>
-                    <th class="p-2 text-left">Colegiatura</th>
-                    <th class="p-2 text-left">Habilitado</th>
-                    <th class="p-2 text-left">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for teacher in teachers %}
-                <tr class="border-b hover:bg-gray-50">
-                    <td class="p-2">{{ teacher.dni }}</td>
-                    <td class="p-2">{{ teacher.full_name }}</td>
-                    <td class="p-2">{{ teacher.registration_code }}</td>
-                    <td class="p-2">{% if teacher.is_enabled %}✅{% else %}❌{% endif %}</td>
+<div class="flex flex-col lg:flex-row gap-6">
+    <!-- Contenido principal (tabla) -->
+    <div class="flex-1 bg-white p-6 rounded shadow">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-4">
+            <h2 class="text-2xl font-bold text-primary">Lista de Profesores</h2>
+            <a href="{% url 'add_teacher' %}" class="bg-primary text-white px-4 py-2 rounded hover:bg-blue-900 btn-icon">
+                <span class="material-symbols-outlined text-white text-base">person_add</span>
+                Nuevo Profesor
+            </a>
+        </div>
 
-                    <!-- En la tabla, en acciones -->
-                    <td class="p-2">
-                        <a href="{% url 'teacher_contributions' teacher.id %}" class="text-blue-600 hover:underline">Ver aportes</a>
-                        <span class="mx-1">|</span>
-                        <a href="{% url 'edit_teacher' teacher.id %}" class="text-blue-600 hover:underline">Editar</a>
-                        <span class="mx-1">|</span>
-                        <a href="{% url 'add_contribution' teacher.id %}" class="text-blue-600 hover:underline">Registrar aporte</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="5" class="p-4 text-center">No hay profesores registrados.</td></tr>
+        <div class="mb-4">
+            <form method="GET" action="{% url 'dashboard' %}" class="flex">
+                <input type="text" name="q" placeholder="Buscar por DNI, apellidos, nombres o código..." value="{{ query }}" class="w-full p-2 border rounded-l">
+                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-r hover:bg-blue-900 btn-icon">
+                    <span class="material-symbols-outlined text-white text-base">search</span>
+                </button>
+                {% if query %}
+                    <a href="{% url 'dashboard' %}" class="ml-2 text-gray-600 hover:underline self-center flex items-center">
+                        <span class="material-symbols-outlined text-base">close</span>
+                    </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="bg-primary text-white">
+                        <th class="p-2 text-left">DNI</th>
+                        <th class="p-2 text-left">Apellidos</th>
+                        <th class="p-2 text-left">Nombres</th>
+                        <th class="p-2 text-left">Colegiatura</th>
+                        <th class="p-2 text-left">Habilitado</th>
+                        <th class="p-2 text-left">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for teacher in teachers %}
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="p-2">{{ teacher.dni }}</td>
+                        <td class="p-2">{{ teacher.last_name }}</td>
+                        <td class="p-2">{{ teacher.first_name }}</td>
+                        <td class="p-2">{{ teacher.registration_code }}</td>
+                        <td class="p-2">{% if teacher.is_enabled %}✅{% else %}❌{% endif %}</td>
+                        <td class="p-2 flex items-center space-x-1">
+                            <a href="{% url 'teacher_contributions' teacher.id %}" class="icon-link" title="Ver aportes">
+                                <span class="material-symbols-outlined">receipt_long</span>
+                            </a>
+                            <a href="{% url 'edit_teacher' teacher.id %}" class="icon-link" title="Editar">
+                                <span class="material-symbols-outlined">edit</span>
+                            </a>
+                            <a href="{% url 'add_contribution' teacher.id %}" class="icon-link" title="Registrar aporte">
+                                <span class="material-symbols-outlined">payments</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="6" class="p-4 text-center">No hay profesores registrados.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Paginación (sin cambios) -->
+        {% if teachers.paginator.num_pages > 1 %}
+        <div class="mt-4 flex justify-center">
+            <nav class="flex items-center space-x-1">
+                {% if teachers.has_previous %}
+                    <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&laquo;</a>
+                {% else %}
+                    <span class="px-3 py-1 border rounded text-gray-400">&laquo;</span>
+                {% endif %}
+
+                {% if teachers.has_previous %}
+                    <a href="?page={{ teachers.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&lsaquo;</a>
+                {% else %}
+                    <span class="px-3 py-1 border rounded text-gray-400">&lsaquo;</span>
+                {% endif %}
+
+                {% for p in teachers.paginator.page_range %}
+                    {% if p >= teachers.number|add:'-3' and p <= teachers.number|add:'3' %}
+                        {% if p == teachers.number %}
+                            <span class="px-3 py-1 border rounded bg-primary text-white">{{ p }}</span>
+                        {% else %}
+                            <a href="?page={{ p }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">{{ p }}</a>
+                        {% endif %}
+                    {% endif %}
                 {% endfor %}
-            </tbody>
-        </table>
-    </div>
 
-    <!-- Paginación -->
-    {% if teachers.has_other_pages %}
-    <div class="flex justify-center mt-4 space-x-1">
-        {% if teachers.has_previous %}
-            <a href="?page=1" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">&laquo; Primero</a>
-            <a href="?page={{ teachers.previous_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Anterior</a>
-        {% endif %}
+                {% if teachers.has_next %}
+                    <a href="?page={{ teachers.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&rsaquo;</a>
+                {% else %}
+                    <span class="px-3 py-1 border rounded text-gray-400">&rsaquo;</span>
+                {% endif %}
 
-        <span class="px-3 py-1 bg-primary text-white rounded">
-            Página {{ teachers.number }} de {{ teachers.paginator.num_pages }}
-        </span>
-
-        {% if teachers.has_next %}
-            <a href="?page={{ teachers.next_page_number }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Siguiente</a>
-            <a href="?page={{ teachers.paginator.num_pages }}" class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300">Último &raquo;</a>
+                {% if teachers.has_next %}
+                    <a href="?page={{ teachers.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 border rounded hover:bg-gray-200">&raquo;</a>
+                {% else %}
+                    <span class="px-3 py-1 border rounded text-gray-400">&raquo;</span>
+                {% endif %}
+            </nav>
+        </div>
         {% endif %}
     </div>
-    {% endif %}
+
+    <!-- Sidebar derecho (estadísticas y últimos actualizados) -->
+    <div class="lg:w-80 xl:w-96 flex-shrink-0 space-y-6">
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold text-primary border-b pb-2 mb-3 flex items-center">
+                <span class="material-symbols-outlined text-primary text-base mr-1">analytics</span>
+                Estadísticas
+            </h3>
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Total profesores:</span>
+                    <span class="font-bold">{{ total_teachers }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Habilitados:</span>
+                    <span class="font-bold text-green-600">{{ enabled_count }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">No habilitados:</span>
+                    <span class="font-bold text-red-600">{{ disabled_count }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-gray-600">Última actualización:</span>
+                    <span class="text-xs">{{ recent_teachers.0.updated_at|date:"d/m/Y H:i"|default:"-" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold text-primary border-b pb-2 mb-3 flex items-center">
+                <span class="material-symbols-outlined text-primary text-base mr-1">update</span>
+                Últimos actualizados
+            </h3>
+            {% if recent_teachers %}
+                <ul class="space-y-3">
+                    {% for teacher in recent_teachers %}
+                        <li class="flex items-start space-x-3 border-b border-gray-100 pb-2">
+                            <div class="flex-shrink-0">
+                                {% if teacher.photo %}
+                                    <img src="{{ teacher.photo.url }}" alt="{{ teacher.full_name }}" class="h-10 w-10 object-cover rounded-full">
+                                {% else %}
+                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-xs">
+                                        <span class="material-symbols-outlined text-base">person</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-800 truncate">{{ teacher.full_name }}</p>
+                                <p class="text-xs text-gray-500">DNI: {{ teacher.dni }}</p>
+                                <p class="text-xs text-gray-400">
+                                    <span class="inline-block w-2 h-2 rounded-full {% if teacher.is_enabled %}bg-green-500{% else %}bg-red-500{% endif %} mr-1"></span>
+                                    {% if teacher.is_enabled %}Habilitado{% else %}No habilitado{% endif %}
+                                    • {{ teacher.updated_at|timesince }} atrás
+                                </p>
+                            </div>
+                            <a href="{% url 'edit_teacher' teacher.id %}" class="icon-link" title="Editar">
+                                <span class="material-symbols-outlined text-base">edit</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-sm text-gray-500">No hay profesores registrados.</p>
+            {% endif %}
+        </div>
+    </div>
 </div>
 {% endblock %}

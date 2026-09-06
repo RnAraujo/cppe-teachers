@@ -1,6 +1,5 @@
-from reportlab.lib.pagesizes import A5
+from reportlab.lib.pagesizes import A5, A4
 from reportlab.lib.units import mm
-from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -15,20 +14,15 @@ def generate_receipt_pdf(contribution):
     styles = getSampleStyleSheet()
     styles.add(ParagraphStyle(name='Center', alignment=TA_CENTER, fontSize=14, spaceAfter=6))
     styles.add(ParagraphStyle(name='Right', alignment=TA_RIGHT, fontSize=10))
-    styles.add(ParagraphStyle(name='Title2', alignment=TA_CENTER, fontSize=16, spaceAfter=12, textColor=colors.HexColor('#00254a')))
+    styles.add(ParagraphStyle(name='Title1', alignment=TA_CENTER, fontSize=16, spaceAfter=12, textColor=colors.HexColor('#00254a')))
 
     elements = []
-
-    # Título
     elements.append(Paragraph("COLEGIO DE PROFESORES DEL PERÚ", styles['Title']))
     elements.append(Paragraph("REGIÓN PUNO", styles['Center']))
     elements.append(Spacer(1, 6*mm))
-
-    # Número de comprobante
     elements.append(Paragraph(f"<b>N° {contribution.receipt_number}</b>", styles['Center']))
     elements.append(Spacer(1, 4*mm))
 
-    # Datos del profesor
     teacher = contribution.teacher
     data = [
         ["DNI:", teacher.dni],
@@ -46,7 +40,6 @@ def generate_receipt_pdf(contribution):
     elements.append(table)
     elements.append(Spacer(1, 4*mm))
 
-    # Detalle del aporte
     meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
     mes_str = meses[contribution.month-1]
     data2 = [
@@ -64,7 +57,6 @@ def generate_receipt_pdf(contribution):
     elements.append(table2)
     elements.append(Spacer(1, 6*mm))
 
-    # Comentarios y observaciones
     if contribution.comments:
         elements.append(Paragraph(f"<b>Comentarios:</b> {contribution.comments}", styles['Normal']))
     if contribution.observations:
@@ -73,6 +65,50 @@ def generate_receipt_pdf(contribution):
     elements.append(Spacer(1, 6*mm))
     elements.append(Paragraph("Este comprobante es válido como constancia de pago.", styles['Normal']))
 
+    doc.build(elements)
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
+
+def generate_multiple_receipts_pdf(contributions):
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            rightMargin=15*mm, leftMargin=15*mm,
+                            topMargin=15*mm, bottomMargin=15*mm)
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(name='Center', alignment=TA_CENTER, fontSize=14, spaceAfter=6))
+    styles.add(ParagraphStyle(name='Title1', alignment=TA_CENTER, fontSize=16, spaceAfter=12, textColor=colors.HexColor('#00254a')))
+
+    elements = []
+    elements.append(Paragraph("COLEGIO DE PROFESORES DEL PERÚ", styles['Title']))
+    elements.append(Paragraph("REGIÓN PUNO - REPORTE DE APORTES", styles['Center']))
+    elements.append(Spacer(1, 6*mm))
+
+    data = [["N°", "Profesor", "Mes", "Año", "Monto", "Fecha Pago", "Comprobante"]]
+    for idx, c in enumerate(contributions, start=1):
+        teacher = c.teacher
+        data.append([
+            str(idx),
+            f"{teacher.last_name} {teacher.first_name}",
+            c.get_month_display(),
+            str(c.year),
+            f"S/ {c.amount:.2f}",
+            c.payment_date.strftime("%d/%m/%Y"),
+            c.receipt_number
+        ])
+
+    col_widths = [20*mm, 50*mm, 30*mm, 20*mm, 30*mm, 35*mm, 40*mm]
+    table = Table(data, colWidths=col_widths)
+    table.setStyle(TableStyle([
+        ('FONTNAME', (0,0), (-1,-1), 'Helvetica'),
+        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.grey),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#00254a')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.whitesmoke),
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+    ]))
+    elements.append(table)
     doc.build(elements)
     pdf = buffer.getvalue()
     buffer.close()

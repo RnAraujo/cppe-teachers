@@ -12,12 +12,12 @@ node_modules/
 Thumbs.db
 
 # Migrations
-voting/migrations/__pycache__/
-voting/management/commands/__pycache__/
-voting/services/__pycache__/
+apps/teachers/migrations/__pycache__/
+apps/teachers/management/commands/__pycache__/
+apps/teachers/services/__pycache__/
 
 # Cache
-voting/__pycache__/
+apps/teachers/__pycache__/
 
 # Principal site
 mysite/__pycache__/
