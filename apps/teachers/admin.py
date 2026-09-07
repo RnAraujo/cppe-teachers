@@ -66,6 +66,8 @@ class TeacherAdmin(admin.ModelAdmin):
 class ContributionAdmin(admin.ModelAdmin):
     list_display = (
         'receipt_number',
+        'month',
+        'year',
         'formatted_amount',
         'teacher_dni',
         'teacher_fullname',
@@ -108,7 +110,7 @@ class ContributionAdmin(admin.ModelAdmin):
             obj.amount
         )
 
-    @admin.display(description='Fecha de Pago', ordering='payment_date')
+    @admin.display(description='Registrado', ordering='payment_date')
     def payment_date_display(self, obj):
         return obj.payment_date.strftime('%d/%m/%Y %H:%M')
 

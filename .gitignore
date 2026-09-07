@@ -10,6 +10,7 @@ node_modules/
 # Sistema Operativo
 .DS_Store
 Thumbs.db
+db.sqlite3
 
 # Migrations
 apps/teachers/migrations/__pycache__/
@@ -19,5 +20,6 @@ apps/teachers/services/__pycache__/
 # Cache
 apps/teachers/__pycache__/
 
-# Principal site
-mysite/__pycache__/
+# Global cache
+**/__pycache__/
+*.pyc
