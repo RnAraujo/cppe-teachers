@@ -1,10 +1,85 @@
-from reportlab.lib.pagesizes import A5, A4
+from reportlab.lib.pagesizes import A4, A5
 from reportlab.lib.units import mm
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.pdfgen import canvas
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+from django.conf import settings
+from datetime import date, datetime
+from PIL import Image
+import qrcode
+import calendar
 import io
+import os
+
+def generate_vigency_certificate_pdf(teacher):
+    now = datetime.now()
+
+    last_contribution = teacher.contributions.order_by('-payment_date').first()
+    if last_contribution:
+        last_day = calendar.monthrange(last_contribution.year, last_contribution.month)[1]
+        last_date = date(last_contribution.year, last_contribution.month, last_day)
+        today = date.today()
+        if today <= last_date:
+            days_left = (last_date - today).days
+            vigency_text = f"Vigente hasta el {last_date.strftime('%d/%m/%Y')} (faltan {days_left} días)"
+        else:
+            vigency_text = f"Vigencia expirada desde {last_date.strftime('%d/%m/%Y')}"
+    else:
+        vigency_text = "Sin aportes registrados"
+
+
+    # setting url and create qr code
+    qr = qrcode.QRCode(version=2, box_size=10, border=4)
+    data = 'https://colegiados.cppe-puno.org.pe/certificate/' + str(teacher.id)
+    qr.add_data(data)
+
+    qr_data = qr.make_image(fill_color='black', back_color='white')
+    qr_buffer = io.BytesIO()
+    qr_data.save(qr_buffer)
+    qr_buffer.seek(0)
+    qr_picture = Image.open(qr_buffer)
+
+    # setting page format
+    buffer = io.BytesIO() 
+    p = canvas.Canvas(buffer, pagesize=A4)
+    p_width, p_height = A4
+    p.setTitle('Certificado de Habilidad')
+    p.setAuthor('PING TO LOCAHOST EIRL')
+
+    # setting front side
+    front_side = os.path.join(settings.MEDIA_ROOT, 'background.jpg')
+    p.drawImage(front_side, 0, 0, width=p_width, height=p_height)
+
+    p.setFont('Helvetica', 10)
+    p.drawString(115, 300, vigency_text)
+
+    # setting fullname
+    p.setFont('Helvetica-Bold', 16)
+    p.drawCentredString(300, 430, teacher.full_name())
+
+    # setting registration code
+    p.setFont('Helvetica-Bold', 16)
+    p.drawCentredString(300, 375, teacher.registration_code)
+
+    # draw qr code
+    size = 70
+    p.drawInlineImage(qr_picture, 450, 460, size, size)
+
+    p.setFont('Helvetica', 8)
+    p.drawString(130, 100, f"Este documento fue generado electrónicamente. Emitido el {now.strftime('%d/%m/%Y')} a las {now.strftime('%H:%M')}")
+
+    p.save()
+    #buffer.seek(0)
+    #buffer.close()
+
+    # create_filename = f"Certificate_{teacher.id:07d}.pdf"
+
+    # return FileResponse(buffer, as_attachment=False, filename=create_filename)
+    pdf = buffer.getvalue()
+    buffer.close()
+    return pdf
 
 def generate_receipt_pdf(contribution):
     buffer = io.BytesIO()

@@ -52,17 +52,29 @@
                         <p><span class="font-medium">Código de Colegiatura:</span> {{ teacher.registration_code }}</p>
                         <p class="mt-2">
                             {% if teacher.is_enabled %}
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-white text-sm font-bold bg-green-600">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 mb-2 rounded-full text-white text-sm font-bold bg-green-600">
                                     <span class="material-symbols-outlined text-base">check_circle</span>
                                     Habilitado
                                 </span>
                             {% else %}
-                                <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-white text-sm font-bold bg-red-600">
+                                <span class="inline-flex items-center gap-1 px-3 py-1 mb-2 rounded-full text-white text-sm font-bold bg-red-600">
                                     <span class="material-symbols-outlined text-base">cancel</span>
                                     No habilitado
                                 </span>
                             {% endif %}
                         </p>
+                        <p>
+                            <span class="font-medium">Vigencia:</span>
+                            <span class="font-bold {{ teacher.vigency_class }}">{{ teacher.vigency_status }}</span>
+                        </p>
+                        {% if teacher.is_vigent %}
+                            <div class="mt-4">
+                                <a href="{% url 'certificate' teacher.id %}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+                                    <span class="material-symbols-outlined">picture_as_pdf</span>
+                                    Descargar Certificado de Vigencia
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

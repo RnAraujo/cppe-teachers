@@ -6,12 +6,31 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from .models import Teacher, Contribution, PublicQueryLog
 from .forms import TeacherForm, ContributionForm
-from .utils import generate_receipt_pdf, generate_multiple_receipts_pdf
+from .utils import generate_receipt_pdf, generate_multiple_receipts_pdf, generate_vigency_certificate_pdf
 from datetime import date
+import calendar
+
+def download_vigency_certificate(request, teacher_id):
+    teacher = get_object_or_404(Teacher, id=teacher_id)
+    # Verificar que esté habilitado y vigente (opcional)
+    last_contribution = teacher.contributions.order_by('-payment_date').first()
+    if not last_contribution:
+        messages.error(request, "El profesor no tiene aportes, no se puede emitir certificado.")
+        return redirect('landing')
+    last_day = calendar.monthrange(last_contribution.year, last_contribution.month)[1]
+    last_date = date(last_contribution.year, last_contribution.month, last_day)
+    today = date.today()
+    if today > last_date:
+        messages.error(request, "El profesor no está vigente, no se puede emitir certificado.")
+        return redirect('landing')
+    # Generar PDF
+    pdf = generate_vigency_certificate_pdf(teacher)
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="certificado_vigencia_{teacher.dni}.pdf"'
+    return response
 
 def landing(request):
     teacher = None
-    # Obtener los 6 últimos profesores registrados (por fecha de creación)
     last_teachers = Teacher.objects.all().order_by('-created_at')[:6]
 
     if request.method == 'POST':
@@ -29,6 +48,28 @@ def landing(request):
                     teacher.status = f"Adeuda meses: {', '.join([str(m) for m in missing])}"
                 else:
                     teacher.status = "Aportes al día"
+
+                # Cálculo de vigencia
+                last_contribution = teacher.contributions.order_by('-payment_date').first()
+                if last_contribution:
+                    last_day = calendar.monthrange(last_contribution.year, last_contribution.month)[1]
+                    last_date = date(last_contribution.year, last_contribution.month, last_day)
+                    today = date.today()
+                    if today <= last_date:
+                        days_left = (last_date - today).days
+                        teacher.vigency_status = f"Vigente por {days_left} días más"
+                        teacher.vigency_class = "text-green-600"
+                        teacher.is_vigent = True
+                    else:
+                        days_overdue = (today - last_date).days
+                        teacher.vigency_status = f"Vigencia expirada (hace {days_overdue} días)"
+                        teacher.vigency_class = "text-red-600"
+                        teacher.is_vigent = False
+                else:
+                    teacher.vigency_status = "Sin aportes registrados"
+                    teacher.vigency_class = "text-gray-500"
+                    teacher.is_vigent = False
+
                 found = True
             except Teacher.DoesNotExist:
                 teacher = None
@@ -45,6 +86,7 @@ def landing(request):
         'teacher': teacher,
         'last_teachers': last_teachers,
     })
+
 
 @login_required
 def dashboard(request):
